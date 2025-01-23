@@ -16,5 +16,21 @@ namespace Sproject
         {
             InitializeComponent();
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void radioButtonGreen_CheckedChanged(object sender, EventArgs e)
+        {
+            this.BackColor = Color.LightGreen;
+            
+        }
+
+        private void radioButtonBlue_CheckedChanged(object sender, EventArgs e)
+        {
+            this.BackColor = Color.LightBlue;
+        }
     }
 }
