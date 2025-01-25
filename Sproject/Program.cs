@@ -16,7 +16,7 @@ namespace Sproject
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TextTransmitter());
+            Application.Run(new CarTool());
         }
     }
 }
