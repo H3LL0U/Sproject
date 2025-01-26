@@ -7,51 +7,185 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using System.IO;
+using System.Diagnostics;
 namespace Sproject
 {
+
+
     public partial class CarTool : Form
     {
+        List<Car> all_cars;
+
+
+
+
+
+        
+        private void updateCombobox(ComboBox comboBox,List<Car> new_items)
+        {
+            comboBox.Items.Clear();
+            foreach (var car in new_items)
+            {
+                comboBox.Items.Add(car.geefNaam());
+                
+
+            }
+            comboBox1_SelectedIndexChanged(new Object(), new EventArgs());
+        }
+        private void clearCarList()
+        {
+            
+            var file_path = "./voorraad.txt";
+            if (!(File.Exists(file_path)))
+            {
+                File.Create(file_path);
+                return;
+            }
+            File.WriteAllText(file_path, "");
+
+        }
+        private List<Car> replaceCars(List<Car> new_all_cars)
+        {
+            clearCarList();
+            foreach (Car car in new_all_cars)
+            {
+                AddCarToFile(car);
+            }
+            return new_all_cars;
+        }
+        private List<Car> deleteSelectedCar(List<Car> cars, Car car_to_remove)
+        {
+            clearCarList();
+            cars.Remove(car_to_remove);
+            foreach (var car in cars) { 
+            
+            AddCarToFile(car);
+            
+            }
+            return cars;
+        }
+        private List<Car> getAllCars()
+        {
+
+            var cars = new List<Car>();
+            var file_path = "./voorraad.txt";
+            if (!(File.Exists(file_path))){
+                File.Create(file_path);
+                return cars;
+            }
+            var carsInfoFileContents = File.ReadAllText(file_path).Split('\n');
+
+            foreach (var car in carsInfoFileContents)
+
+            {
+                if (car != "")
+                {
+                    
+                    //default values for reading 
+                    var price = 999999999.0;
+                    var color = string.Empty;
+                    var merk = string.Empty;
+                    var type = string.Empty;
+                    var doors = 4;
+                    var picture = string.Empty;
+                    var car_parameters = car.Split(';');
+                    foreach (var param in car_parameters)
+                    {
+                        if (param.StartsWith("Merk="))
+                        {
+                            merk = param.Substring("Merk=".Length);
+                        }
+                        else if (param.StartsWith("Color="))
+                        {
+                            color = param.Substring("Color=".Length);
+                        }
+                        else if (param.StartsWith("Type="))
+                        {
+                            type = param.Substring("Type=".Length);
+                        }
+                        else if (param.StartsWith("Price="))
+                        {
+                            price = double.Parse(param.Substring("Price=".Length));
+
+                        }
+                        else if (param.StartsWith("Doors="))
+                        {
+                            doors = int.Parse(param.Substring("Doors=".Length));
+
+                        }
+                        else if (param.StartsWith("Picture="))
+                        {
+                            picture = param.Substring("Picture=".Length);
+
+                        }
+
+
+
+
+                    }
+                    var carObject = new Car(price, color, merk, type, doors, picture);
+                    cars.Add(carObject);
+                }
+            }
+
+            
+
+
+            return cars;
+        }
+        private void AddCarToFile(Car car)
+        {
+            
+            var carLine = $"Merk={car.merk};Color={car.color};Type={car.type};Price={car.price};Doors={car.doors};Picture={car.picture}";
+
+            
+            File.AppendAllText("./voorraad.txt", carLine + Environment.NewLine);
+        }
         public CarTool()
         {
             InitializeComponent();
+            this.all_cars = getAllCars();
+            //add cars saved in the text file to the combobox initially
+            updateCombobox(VoorraadCombobox, all_cars);
         }
 
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
+            this.CarPictureBox = new System.Windows.Forms.PictureBox();
             this.PriceLabel = new System.Windows.Forms.Label();
             this.DoorsLabel = new System.Windows.Forms.Label();
             this.ColorLabel = new System.Windows.Forms.Label();
             this.MerkTypeLabel = new System.Windows.Forms.Label();
-            this.pictureBox = new System.Windows.Forms.PictureBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.VoorraadCombobox = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.SelectImageButton = new System.Windows.Forms.Button();
+            this.PictureComboBox = new System.Windows.Forms.ComboBox();
+            this.PriceComboBox = new System.Windows.Forms.ComboBox();
+            this.DoorsComboBox = new System.Windows.Forms.ComboBox();
+            this.ColorComboBox = new System.Windows.Forms.ComboBox();
+            this.TypeComboBox = new System.Windows.Forms.ComboBox();
+            this.MerkComboBox = new System.Windows.Forms.ComboBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.comboBox3 = new System.Windows.Forms.ComboBox();
-            this.comboBox4 = new System.Windows.Forms.ComboBox();
-            this.comboBox5 = new System.Windows.Forms.ComboBox();
-            this.comboBox6 = new System.Windows.Forms.ComboBox();
-            this.comboBox7 = new System.Windows.Forms.ComboBox();
-            this.SelectButton = new System.Windows.Forms.Button();
             this.GroupBox3 = new System.Windows.Forms.GroupBox();
-            this.Label6 = new System.Windows.Forms.Label();
-            this.NewPriceField = new System.Windows.Forms.TextBox();
-            this.UpdatePriceButton = new System.Windows.Forms.Button();
             this.DeleteCarButton = new System.Windows.Forms.Button();
+            this.UpdatePriceButton = new System.Windows.Forms.Button();
+            this.NewPriceField = new System.Windows.Forms.TextBox();
+            this.Label6 = new System.Windows.Forms.Label();
+            this.SaveCarButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CarPictureBox)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.GroupBox3.SuspendLayout();
             this.SuspendLayout();
@@ -67,7 +201,7 @@ namespace Sproject
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.pictureBox);
+            this.groupBox1.Controls.Add(this.CarPictureBox);
             this.groupBox1.Controls.Add(this.PriceLabel);
             this.groupBox1.Controls.Add(this.DoorsLabel);
             this.groupBox1.Controls.Add(this.ColorLabel);
@@ -76,7 +210,7 @@ namespace Sproject
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.comboBox1);
+            this.groupBox1.Controls.Add(this.VoorraadCombobox);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(23, 12);
             this.groupBox1.Name = "groupBox1";
@@ -84,51 +218,18 @@ namespace Sproject
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Voorraad";
+            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
-            // comboBox1
+            // CarPictureBox
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(22, 51);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
-            this.comboBox1.TabIndex = 2;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(19, 87);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(72, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Merk en type:";
-            this.label2.Click += new System.EventHandler(this.label2_Click);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(19, 110);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(34, 13);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "Kleur:";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(19, 136);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(78, 13);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "Aantal Deuren:";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(19, 161);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(56, 13);
-            this.label5.TabIndex = 6;
-            this.label5.Text = "Vraagprijs:";
+            this.CarPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.CarPictureBox.Location = new System.Drawing.Point(354, 19);
+            this.CarPictureBox.Name = "CarPictureBox";
+            this.CarPictureBox.Size = new System.Drawing.Size(173, 173);
+            this.CarPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.CarPictureBox.TabIndex = 11;
+            this.CarPictureBox.TabStop = false;
+            this.CarPictureBox.Click += new System.EventHandler(this.pictureBox_Click);
             // 
             // PriceLabel
             // 
@@ -162,23 +263,63 @@ namespace Sproject
             this.MerkTypeLabel.Size = new System.Drawing.Size(0, 13);
             this.MerkTypeLabel.TabIndex = 7;
             // 
-            // pictureBox
+            // label5
             // 
-            this.pictureBox.Location = new System.Drawing.Point(354, 34);
-            this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(244, 158);
-            this.pictureBox.TabIndex = 11;
-            this.pictureBox.TabStop = false;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(19, 161);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(56, 13);
+            this.label5.TabIndex = 6;
+            this.label5.Text = "Vraagprijs:";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(19, 136);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(78, 13);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "Aantal Deuren:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(19, 110);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(34, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Kleur:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(19, 87);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(72, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Merk en type:";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
+            // 
+            // VoorraadCombobox
+            // 
+            this.VoorraadCombobox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.VoorraadCombobox.FormattingEnabled = true;
+            this.VoorraadCombobox.Location = new System.Drawing.Point(22, 51);
+            this.VoorraadCombobox.Name = "VoorraadCombobox";
+            this.VoorraadCombobox.Size = new System.Drawing.Size(121, 21);
+            this.VoorraadCombobox.TabIndex = 2;
+            this.VoorraadCombobox.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.SelectButton);
-            this.groupBox2.Controls.Add(this.comboBox7);
-            this.groupBox2.Controls.Add(this.comboBox6);
-            this.groupBox2.Controls.Add(this.comboBox5);
-            this.groupBox2.Controls.Add(this.comboBox4);
-            this.groupBox2.Controls.Add(this.comboBox3);
-            this.groupBox2.Controls.Add(this.comboBox2);
+            this.groupBox2.Controls.Add(this.SaveCarButton);
+            this.groupBox2.Controls.Add(this.SelectImageButton);
+            this.groupBox2.Controls.Add(this.PictureComboBox);
+            this.groupBox2.Controls.Add(this.PriceComboBox);
+            this.groupBox2.Controls.Add(this.DoorsComboBox);
+            this.groupBox2.Controls.Add(this.ColorComboBox);
+            this.groupBox2.Controls.Add(this.TypeComboBox);
+            this.groupBox2.Controls.Add(this.MerkComboBox);
             this.groupBox2.Controls.Add(this.label20);
             this.groupBox2.Controls.Add(this.label21);
             this.groupBox2.Controls.Add(this.label10);
@@ -187,10 +328,88 @@ namespace Sproject
             this.groupBox2.Controls.Add(this.label13);
             this.groupBox2.Location = new System.Drawing.Point(23, 245);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(325, 201);
+            this.groupBox2.Size = new System.Drawing.Size(325, 237);
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Nieuwe Auto";
+            // 
+            // SelectImageButton
+            // 
+            this.SelectImageButton.Location = new System.Drawing.Point(218, 159);
+            this.SelectImageButton.Name = "SelectImageButton";
+            this.SelectImageButton.Size = new System.Drawing.Size(76, 23);
+            this.SelectImageButton.TabIndex = 27;
+            this.SelectImageButton.Text = "Selecteer...";
+            this.SelectImageButton.UseVisualStyleBackColor = true;
+            this.SelectImageButton.Click += new System.EventHandler(this.SelectImageButton_Click);
+            // 
+            // PictureComboBox
+            // 
+            this.PictureComboBox.FormattingEnabled = true;
+            this.PictureComboBox.Location = new System.Drawing.Point(135, 161);
+            this.PictureComboBox.Name = "PictureComboBox";
+            this.PictureComboBox.Size = new System.Drawing.Size(77, 21);
+            this.PictureComboBox.TabIndex = 26;
+            // 
+            // PriceComboBox
+            // 
+            this.PriceComboBox.FormattingEnabled = true;
+            this.PriceComboBox.Location = new System.Drawing.Point(135, 134);
+            this.PriceComboBox.Name = "PriceComboBox";
+            this.PriceComboBox.Size = new System.Drawing.Size(159, 21);
+            this.PriceComboBox.TabIndex = 25;
+            // 
+            // DoorsComboBox
+            // 
+            this.DoorsComboBox.FormattingEnabled = true;
+            this.DoorsComboBox.Location = new System.Drawing.Point(135, 107);
+            this.DoorsComboBox.Name = "DoorsComboBox";
+            this.DoorsComboBox.Size = new System.Drawing.Size(159, 21);
+            this.DoorsComboBox.TabIndex = 24;
+            this.DoorsComboBox.SelectedIndexChanged += new System.EventHandler(this.comboBox5_SelectedIndexChanged);
+            // 
+            // ColorComboBox
+            // 
+            this.ColorComboBox.FormattingEnabled = true;
+            this.ColorComboBox.Location = new System.Drawing.Point(135, 81);
+            this.ColorComboBox.Name = "ColorComboBox";
+            this.ColorComboBox.Size = new System.Drawing.Size(159, 21);
+            this.ColorComboBox.TabIndex = 23;
+            // 
+            // TypeComboBox
+            // 
+            this.TypeComboBox.FormattingEnabled = true;
+            this.TypeComboBox.Location = new System.Drawing.Point(135, 54);
+            this.TypeComboBox.Name = "TypeComboBox";
+            this.TypeComboBox.Size = new System.Drawing.Size(159, 21);
+            this.TypeComboBox.TabIndex = 22;
+            // 
+            // MerkComboBox
+            // 
+            this.MerkComboBox.FormattingEnabled = true;
+            this.MerkComboBox.Location = new System.Drawing.Point(135, 27);
+            this.MerkComboBox.Name = "MerkComboBox";
+            this.MerkComboBox.Size = new System.Drawing.Size(159, 21);
+            this.MerkComboBox.TabIndex = 21;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(22, 164);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(57, 13);
+            this.label20.TabIndex = 20;
+            this.label20.Text = "Afbeelding";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(22, 137);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(56, 13);
+            this.label21.TabIndex = 19;
+            this.label21.Text = "Vraagprijs:";
+            this.label21.Click += new System.EventHandler(this.label21_Click);
             // 
             // label10
             // 
@@ -229,83 +448,6 @@ namespace Sproject
             this.label13.TabIndex = 11;
             this.label13.Text = "Merk:";
             // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(22, 164);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(57, 13);
-            this.label20.TabIndex = 20;
-            this.label20.Text = "Afbeelding";
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(22, 137);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(56, 13);
-            this.label21.TabIndex = 19;
-            this.label21.Text = "Vraagprijs:";
-            this.label21.Click += new System.EventHandler(this.label21_Click);
-            // 
-            // comboBox2
-            // 
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(135, 27);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(159, 21);
-            this.comboBox2.TabIndex = 21;
-            // 
-            // comboBox3
-            // 
-            this.comboBox3.FormattingEnabled = true;
-            this.comboBox3.Location = new System.Drawing.Point(135, 54);
-            this.comboBox3.Name = "comboBox3";
-            this.comboBox3.Size = new System.Drawing.Size(159, 21);
-            this.comboBox3.TabIndex = 22;
-            // 
-            // comboBox4
-            // 
-            this.comboBox4.FormattingEnabled = true;
-            this.comboBox4.Location = new System.Drawing.Point(135, 81);
-            this.comboBox4.Name = "comboBox4";
-            this.comboBox4.Size = new System.Drawing.Size(159, 21);
-            this.comboBox4.TabIndex = 23;
-            // 
-            // comboBox5
-            // 
-            this.comboBox5.FormattingEnabled = true;
-            this.comboBox5.Location = new System.Drawing.Point(135, 107);
-            this.comboBox5.Name = "comboBox5";
-            this.comboBox5.Size = new System.Drawing.Size(159, 21);
-            this.comboBox5.TabIndex = 24;
-            this.comboBox5.SelectedIndexChanged += new System.EventHandler(this.comboBox5_SelectedIndexChanged);
-            // 
-            // comboBox6
-            // 
-            this.comboBox6.FormattingEnabled = true;
-            this.comboBox6.Location = new System.Drawing.Point(135, 134);
-            this.comboBox6.Name = "comboBox6";
-            this.comboBox6.Size = new System.Drawing.Size(159, 21);
-            this.comboBox6.TabIndex = 25;
-            // 
-            // comboBox7
-            // 
-            this.comboBox7.FormattingEnabled = true;
-            this.comboBox7.Location = new System.Drawing.Point(135, 161);
-            this.comboBox7.Name = "comboBox7";
-            this.comboBox7.Size = new System.Drawing.Size(77, 21);
-            this.comboBox7.TabIndex = 26;
-            // 
-            // SelectButton
-            // 
-            this.SelectButton.Location = new System.Drawing.Point(218, 159);
-            this.SelectButton.Name = "SelectButton";
-            this.SelectButton.Size = new System.Drawing.Size(76, 23);
-            this.SelectButton.TabIndex = 27;
-            this.SelectButton.Text = "Selecteer...";
-            this.SelectButton.UseVisualStyleBackColor = true;
-            // 
             // GroupBox3
             // 
             this.GroupBox3.Controls.Add(this.DeleteCarButton);
@@ -314,10 +456,38 @@ namespace Sproject
             this.GroupBox3.Controls.Add(this.Label6);
             this.GroupBox3.Location = new System.Drawing.Point(377, 245);
             this.GroupBox3.Name = "GroupBox3";
-            this.GroupBox3.Size = new System.Drawing.Size(274, 201);
+            this.GroupBox3.Size = new System.Drawing.Size(274, 237);
             this.GroupBox3.TabIndex = 4;
             this.GroupBox3.TabStop = false;
             this.GroupBox3.Text = "Wijzingen";
+            // 
+            // DeleteCarButton
+            // 
+            this.DeleteCarButton.Location = new System.Drawing.Point(38, 208);
+            this.DeleteCarButton.Name = "DeleteCarButton";
+            this.DeleteCarButton.Size = new System.Drawing.Size(206, 23);
+            this.DeleteCarButton.TabIndex = 3;
+            this.DeleteCarButton.Text = "Verwijder geselecteerde auto";
+            this.DeleteCarButton.UseVisualStyleBackColor = true;
+            this.DeleteCarButton.Click += new System.EventHandler(this.DeleteCarButton_Click);
+            // 
+            // UpdatePriceButton
+            // 
+            this.UpdatePriceButton.Location = new System.Drawing.Point(82, 57);
+            this.UpdatePriceButton.Name = "UpdatePriceButton";
+            this.UpdatePriceButton.Size = new System.Drawing.Size(146, 23);
+            this.UpdatePriceButton.TabIndex = 2;
+            this.UpdatePriceButton.Text = "Update vraagprijs";
+            this.UpdatePriceButton.UseVisualStyleBackColor = true;
+            this.UpdatePriceButton.Click += new System.EventHandler(this.UpdatePriceButton_Click);
+            // 
+            // NewPriceField
+            // 
+            this.NewPriceField.Location = new System.Drawing.Point(82, 30);
+            this.NewPriceField.Name = "NewPriceField";
+            this.NewPriceField.Size = new System.Drawing.Size(146, 20);
+            this.NewPriceField.TabIndex = 1;
+            this.NewPriceField.TextChanged += new System.EventHandler(this.NewPriceField_TextChanged);
             // 
             // Label6
             // 
@@ -328,30 +498,15 @@ namespace Sproject
             this.Label6.TabIndex = 0;
             this.Label6.Text = "Vraagprijs:";
             // 
-            // NewPriceField
+            // SaveCarButton
             // 
-            this.NewPriceField.Location = new System.Drawing.Point(82, 30);
-            this.NewPriceField.Name = "NewPriceField";
-            this.NewPriceField.Size = new System.Drawing.Size(146, 20);
-            this.NewPriceField.TabIndex = 1;
-            // 
-            // UpdatePriceButton
-            // 
-            this.UpdatePriceButton.Location = new System.Drawing.Point(82, 57);
-            this.UpdatePriceButton.Name = "UpdatePriceButton";
-            this.UpdatePriceButton.Size = new System.Drawing.Size(146, 23);
-            this.UpdatePriceButton.TabIndex = 2;
-            this.UpdatePriceButton.Text = "Update vraagprijs";
-            this.UpdatePriceButton.UseVisualStyleBackColor = true;
-            // 
-            // DeleteCarButton
-            // 
-            this.DeleteCarButton.Location = new System.Drawing.Point(22, 159);
-            this.DeleteCarButton.Name = "DeleteCarButton";
-            this.DeleteCarButton.Size = new System.Drawing.Size(206, 23);
-            this.DeleteCarButton.TabIndex = 3;
-            this.DeleteCarButton.Text = "Verwijder geselecteerde auto";
-            this.DeleteCarButton.UseVisualStyleBackColor = true;
+            this.SaveCarButton.Location = new System.Drawing.Point(25, 208);
+            this.SaveCarButton.Name = "SaveCarButton";
+            this.SaveCarButton.Size = new System.Drawing.Size(269, 23);
+            this.SaveCarButton.TabIndex = 28;
+            this.SaveCarButton.Text = "Toevoegen";
+            this.SaveCarButton.UseVisualStyleBackColor = true;
+            this.SaveCarButton.Click += new System.EventHandler(this.SaveCarButton_Click);
             // 
             // CarTool
             // 
@@ -363,7 +518,7 @@ namespace Sproject
             this.Text = "AutoGarage";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CarPictureBox)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.GroupBox3.ResumeLayout(false);
@@ -390,6 +545,169 @@ namespace Sproject
         private void label21_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selected_car = VoorraadCombobox.Text;
+            foreach (Car car in all_cars)
+            {
+                if (car.geefNaam() == selected_car)
+                {
+                    MerkTypeLabel.Text = car.ToString();
+                    ColorLabel.Text = car.color;
+                    DoorsLabel.Text = car.doors.ToString();
+                    PriceLabel.Text = car.price.ToString();
+                    if (car.heeftAfbeelding() && File.Exists(car.picture))
+                    {
+                        CarPictureBox.Image = null;
+                        CarPictureBox.Image = Image.FromFile(car.picture);
+                    }
+                    else
+                    {
+
+                        CarPictureBox.Image = null;
+                    }
+                }
+
+
+
+
+            }
+        }
+
+        void SaveCarButton_Click(object sender, EventArgs e)
+        {
+            // Get values from ComboBoxes
+            var price = PriceComboBox.Text;
+            var color = ColorComboBox.Text;
+            var merk = MerkComboBox.Text;
+            var type = TypeComboBox.Text;
+            var doors = DoorsComboBox.Text;
+            var picture = PictureComboBox.Text;
+
+            // Validation checks
+            if (string.IsNullOrWhiteSpace(price) ||
+                string.IsNullOrWhiteSpace(color) ||
+                string.IsNullOrWhiteSpace(merk) ||
+                string.IsNullOrWhiteSpace(type) ||
+                string.IsNullOrWhiteSpace(doors))
+            {
+                MessageBox.Show("Alle felden moeten iets bevatten.", "Validatie fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            
+            if (!double.TryParse(price, out var parsedPrice))
+            {
+                MessageBox.Show("De prijs moet een cijfer zijn", "Validatie fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            
+            if (!int.TryParse(doors, out var parsedDoors))
+            {
+                MessageBox.Show("Deuren moeten een cijver zijn", "Validatie fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (price.Contains(";") || price.Contains(",") ||
+                color.Contains(";") || color.Contains(",") ||
+                merk.Contains(";") || merk.Contains(",") ||
+                type.Contains(";") || type.Contains(",") ||
+                doors.Contains(";") || doors.Contains(","))
+            {
+                MessageBox.Show("Velden mogen geen ';' of ',' bevatten.", "Validatie fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var new_car = new Car(parsedPrice, color,merk,type,parsedDoors,picture);
+            AddCarToFile(new_car);
+            all_cars.Add(new_car);
+            updateCombobox(VoorraadCombobox, all_cars);
+            MessageBox.Show("Nieuwe auto toegevoegd", "Validatie gekeurd", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SelectImageButton_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = "C:\\";
+                openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.png)|*.jpg;*.jpeg;*.png|All files (*.*)|*.*";
+                openFileDialog.FilterIndex = 1;
+                openFileDialog.RestoreDirectory = true;
+
+                // Show the dialog and check if the user selected a file
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    
+                    string selectedFilePath = openFileDialog.FileName;
+                    PictureComboBox.Text = selectedFilePath;
+                }
+
+            }
+
+        }
+
+        private void DeleteCarButton_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Ben je zeker dat je de auto wil verwijderen?",
+                                                  "Confirmatie",
+                                                  MessageBoxButtons.YesNo,
+                                                  MessageBoxIcon.Question);
+            if (result == DialogResult.No)
+            {
+                return;
+            }
+            foreach (var car in all_cars) {
+                if (VoorraadCombobox.Text == car.geefNaam())
+                {
+                    all_cars = deleteSelectedCar(all_cars,car);
+
+                    
+                    VoorraadCombobox.Text = null;
+                    updateCombobox(VoorraadCombobox, all_cars);
+                    
+                    return;
+                }
+            }
+        }
+
+        private void NewPriceField_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void UpdatePriceButton_Click(object sender, EventArgs e)
+        {
+            if (double.TryParse(NewPriceField.Text, out var parsedPrice))
+            {
+                foreach (var car in all_cars)
+                {
+                    if (car.geefNaam() == VoorraadCombobox.Text)
+                    {
+                        car.updateVraagprijs(parsedPrice);
+                    }
+                    replaceCars(all_cars);
+                    comboBox1_SelectedIndexChanged(new Object(), new EventArgs());
+
+
+                }
+            }
+            else
+            {
+                MessageBox.Show("Prijs moet een cijfer zijn", "Validatie fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
